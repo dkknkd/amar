@@ -26,6 +26,14 @@
             <img src="images/memory-match.png" alt="Memory Match">
             Play Memory Match
         </button>
+        <button onclick="startGame('snake')" class="game-button" aria-label="Play Snake">
+            <img src="images/snake.png" alt="Snake">
+            Play Snake
+        </button>
+        <button onclick="startGame('memory-squares')" class="game-button" aria-label="Play Memory Squares">
+            <img src="images/memory-squares.png" alt="Memory Squares">
+            Play Memory Squares
+        </button>
     </div>
 
     <div id="tic-tac-toe" class="game" aria-label="Tic-Tac-Toe Game">
@@ -132,6 +140,31 @@
         <div id="memory-match-board"></div>
         <button onclick="resetGame('memory-match')">Play Again</button>
         <button onclick="togglePause('memory-match')">Pause/Resume</button>
+        <button onclick="goBack()">Back to Game Selection</button>
+    </div>
+
+    <!-- New Snake Game -->
+    <div id="snake" class="game" aria-label="Snake Game">
+        <h2>Snake</h2>
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+        <button onclick="resetGame('snake')">Reset Game</button>
+        <button onclick="togglePause('snake')">Pause/Resume</button>
+        <button onclick="goBack()">Back to Game Selection</button>
+    </div>
+
+    <div id="memory-squares" class="game" aria-label="Memory Squares Game">
+        <h2>Memory Squares</h2>
+        <div class="grid">
+            <div class="cell" data-id="0"></div>
+            <div class="cell" data-id="1"></div>
+            <div class="cell" data-id="2"></div>
+            <div class="cell" data-id="3"></div>
+            <div class="cell" data-id="4"></div>
+            <div class="cell" data-id="5"></div>
+            <div class="cell" data-id="6"></div>
+            <div class="cell" data-id="7"></div>
+            <div class="cell" data-id="8"></div>
+        </div>
         <button onclick="goBack()">Back to Game Selection</button>
     </div>
 
