@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rockPaperScissorsGame = document.getElementById('rock-paper-scissors');
     const shootBubbleGame = document.getElementById('shoot-bubble');
     const memoryMatchGame = document.getElementById('memory-match');
+    const snakeGame = document.getElementById('snake');
     const ticTacToeBoard = document.getElementById('tic-tac-toe-board');
     const rpsResult = document.getElementById('rps-result');
     const difficultySelectRPS = document.getElementById('difficulty-rps');
@@ -56,6 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (game === 'tic-tac-toe') createTicTacToeBoard();
         if (game === 'shoot-bubble') startBubbleGame();
         if (game === 'memory-match') createMemoryMatchBoard();
+        if (game === 'snake') startSnakeGame();
+        if (game === 'memory-squares') startMemorySquares();
+        
     };
 
     const createTicTacToeBoard = () => {
@@ -130,6 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resetBubbleGame();
         } else if (game === 'memory-match') {
             resetMemoryMatch();
+        } else if (game === 'snake') {
+            startSnakeGame();
         }
     };
 
@@ -144,6 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isShootBubblePaused) startBubbleGame();
         } else if (game === 'memory-match') {
             isMemoryMatchPaused = !isMemoryMatchPaused;
+        } else if (game === 'snake') {
+            if (snakeInterval) {
+                clearInterval(snakeInterval);
+                snakeInterval = null;
+            } else {
+                snakeInterval = setInterval(updateSnake, 100);
+            }
         }
     };
 
@@ -214,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rockPaperScissorsGame.style.display = 'none';
         shootBubbleGame.style.display = 'none';
         memoryMatchGame.style.display = 'none';
+        snakeGame.style.display = 'none';
     };
 
     const startBubbleGame = () => {
@@ -417,6 +431,132 @@ document.addEventListener('DOMContentLoaded', () => {
         playModeBubble = playModeSelectBubble.value;
         resetGame('shoot-bubble');
     };
+
+    // Snake Game
+    const snakeCanvas = document.getElementById('snakeCanvas');
+    const ctx = snakeCanvas.getContext('2d');
+    const gridSize = 20;
+    let snake = [{x: 5, y: 5}];
+    let food = {x: 10, y: 10};
+    let direction = {x: 0, y: 0};
+    let snakeInterval;
+
+    const startSnakeGame = () => {
+        direction = {x: 0, y: 1};
+        snake = [{x: 5, y: 5}];
+        placeFood();
+        snakeInterval = setInterval(updateSnake, 100);
+    };
+
+    const placeFood = () => {
+        food = {
+            x: Math.floor(Math.random() * gridSize),
+            y: Math.floor(Math.random() * gridSize)
+        };
+    };
+
+    const updateSnake = () => {
+        const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+        if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize || snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+            clearInterval(snakeInterval);
+            alert('Game Over');
+            return;
+        }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            placeFood();
+        } else {
+            snake.pop();
+        }
+        drawSnake();
+    };
+
+    const drawSnake = () => {
+        ctx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+        ctx.fillStyle = 'green';
+        snake.forEach(segment => {
+            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        });
+        ctx.fillStyle = 'red';
+        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+    };
+
+    const handleKeydown = (event) => {
+        switch(event.key) {
+            case 'ArrowUp':
+                if (direction.y === 0) direction = {x: 0, y: -1};
+                break;
+            case 'ArrowDown':
+                if (direction.y === 0) direction = {x: 0, y: 1};
+                break;
+            case 'ArrowLeft':
+                if (direction.x === 0) direction = {x: -1, y: 0};
+                break;
+            case 'ArrowRight':
+                if (direction.x === 0) direction = {x: 1, y: 0};
+                break;
+        }
+    };
+
+    const cells = document.querySelectorAll('#memory-squares .cell');
+let sequence = [];
+let playerSequence = [];
+let level = 1;
+
+const startMemorySquares = () => {
+    generateSequence();
+    highlightSequence();
+};
+
+const generateSequence = () => {
+    sequence = [];
+    for (let i = 0; i < level; i++) {
+        sequence.push(Math.floor(Math.random() * 9));
+    }
+};
+
+const highlightSequence = () => {
+    let delay = 500;
+
+    sequence.forEach((id, index) => {
+        setTimeout(() => {
+            cells[id].classList.add('active');
+            setTimeout(() => {
+                cells[id].classList.remove('active');
+            }, 500);
+        }, delay * (index + 1));
+    });
+
+    setTimeout(() => {
+        playerSequence = [];
+        cells.forEach(cell => cell.addEventListener('click', handlePlayerClick));
+    }, delay * (sequence.length + 1));
+};
+
+const handlePlayerClick = (event) => {
+    const clickedId = parseInt(event.target.dataset.id);
+    playerSequence.push(clickedId);
+    event.target.classList.add('clicked');
+    setTimeout(() => {
+        event.target.classList.remove('clicked');
+    }, 300);
+
+    if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
+        alert('Game Over! Try Again.');
+        level = 1;
+        startMemorySquares();
+        return;
+    }
+
+    if (playerSequence.length === sequence.length) {
+        level++;
+        cells.forEach(cell => cell.removeEventListener('click', handlePlayerClick));
+        setTimeout(() => {
+            startMemorySquares();
+        }, 1000);
+    }
+};
+    document.addEventListener('keydown', handleKeydown);
 
     window.startGame = startGame;
     window.playerChoice = playerChoice;
